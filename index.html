@@ -194,7 +194,9 @@ p.ssub{color:var(--text2);font-size:.93rem;max-width:500px;margin-bottom:3.5rem;
 .fg input::placeholder,.fg textarea::placeholder{color:var(--text3)}
 .sub-btn{font-family:var(--sans);font-size:.8rem;font-weight:600;color:#000;background:var(--text);padding:.8rem;border-radius:5px;border:none;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
 .sub-btn::before{content:'';position:absolute;inset:0;background:var(--purple3);transform:scaleX(0);transform-origin:left;transition:transform .22s;z-index:0}
-.sub-btn span{position:relative;z-index:1}
+.sub-btn span{position:relative;z-index:1}.sub-btn:disabled{opacity:.55;cursor:not-allowed;transform:none !important}
+.sub-btn:disabled{opacity:.6;cursor:not-allowed;transform:none !important}
+.sub-btn:disabled::before{transform:none !important}
 .sub-btn:hover::before{transform:scaleX(1)}
 .sub-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.25)}
 #fst{font-family:var(--mono);font-size:.7rem;text-align:center;min-height:1rem}
@@ -212,6 +214,16 @@ footer{padding:1.5rem 4rem;border-top:1px solid var(--border);display:flex;align
 @media(max-width:820px){.nav-links{display:none}#hero{padding:6rem 2rem 3rem;min-height:auto}.h-inner{flex-direction:column-reverse;gap:2.5rem}.h-right{margin:0 auto}.ab-grid,.ct-grid{grid-template-columns:1fr}.sk-wrap{grid-template-columns:1fr 1fr}.pg,.cg{grid-template-columns:1fr}.pc2.feat{grid-column:span 1}.ex-wrap{display:block}.ex-nav{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.75rem;margin-bottom:1.75rem;padding-right:0}.ex-nav::after{display:none}.ex-btn{border-right:none;border-bottom:2px solid transparent;padding:.35rem .8rem;white-space:nowrap;margin-right:0}.ex-btn.on{border-bottom-color:var(--purple);border-right-color:transparent}.ex-body{padding-left:0}section{padding:4rem 2rem}}
 @media(max-width:540px){.sk-wrap{grid-template-columns:1fr}.h-stats{grid-template-columns:1fr 1fr}.h-title{font-size:2.8rem}footer{flex-direction:column;gap:1rem;text-align:center}}
 </style>
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init({ publicKey: 'UddpkjSCHg0AYp0qm' });
+    })();
+  </script>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init({publicKey:'UddpkjSCHg0AYp0qm'});</script>
 </head>
 <body>
 <div id="cur"></div><div id="cur-ring"></div><div id="progress"></div><canvas id="particles"></canvas>
@@ -593,12 +605,38 @@ function goForm(e){
   const el=document.getElementById('contact-form-wrap');
   if(el){el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>document.getElementById('fn').focus(),600)}
 }
-// CONTACT
+// CONTACT via EmailJS
 function sendMail(){
-  const n=document.getElementById('fn').value.trim(),e=document.getElementById('fe').value.trim(),m=document.getElementById('fm').value.trim(),s=document.getElementById('fst');
-  if(!n||!e||!m){s.textContent='Please fill all fields.';s.style.color='#ff8c8c';return}
-  window.location.href=`mailto:cntc.aak@gmail.com?subject=Portfolio Enquiry from ${encodeURIComponent(n)}&body=${encodeURIComponent('From: '+n+'\nEmail: '+e+'\n\n'+m)}`;
-  s.textContent='Opening your email client...';s.style.color='var(--purple3)';
+  var n=document.getElementById('fn').value.trim();
+  var e=document.getElementById('fe').value.trim();
+  var m=document.getElementById('fm').value.trim();
+  var s=document.getElementById('fst');
+  var btn=document.querySelector('.sub-btn');
+  if(!n||!e||!m){s.textContent='Please fill all fields.';s.style.color='#ff8c8c';return;}
+  if(!e.includes('@')||!e.includes('.')){s.textContent='Please enter a valid email.';s.style.color='#ff8c8c';return;}
+  btn.disabled=true;
+  btn.querySelector('span').textContent='Sending...';
+  s.textContent='';
+  emailjs.send('service_bydgzlk','template_4b3ehgn',{
+    from_name:n,
+    reply_to:e,
+    from_email:e,
+    message:m
+  }).then(function(){
+    s.textContent='Message sent! I will get back to you soon.';
+    s.style.color='var(--purple3)';
+    document.getElementById('fn').value='';
+    document.getElementById('fe').value='';
+    document.getElementById('fm').value='';
+    btn.querySelector('span').textContent='Send Message →';
+    btn.disabled=false;
+  },function(err){
+    console.error(err);
+    s.textContent='Failed to send. Please email cntc.aak@gmail.com directly.';
+    s.style.color='#ff8c8c';
+    btn.querySelector('span').textContent='Send Message →';
+    btn.disabled=false;
+  });
 }
 </script>
 </body>
